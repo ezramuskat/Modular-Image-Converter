@@ -6,7 +6,8 @@ fn main() {
 }
 
 trait ConvertibleImage {
-    fn from_file<P: AsRef<Path>>(path: P) -> io::Result<Box<Self>>;
+    fn from_file<P: AsRef<Path>>(path: P, flags: Vec<String>) -> io::Result<Box<Self>>;
+    fn to_file<P: AsRef<Path>>(&self, path: P, flags: Vec<String>);
     fn to_png(&self) -> png::Png;
     fn from_png(png: png::Png) -> Self;
 }
