@@ -114,3 +114,99 @@ impl fmt::Display for Chunk {
         std::fmt::Display::fmt(from_utf8(&self.data).unwrap(), f)
     }
 }
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	fn testing_chunk() -> Chunk {
+        let data_length: u32 = 35;
+        let chunk_type = "IHDR".as_bytes();
+        let message_bytes = "A string for some sample bytes here".as_bytes();
+        let crc: u32 = 1984488028;
+
+        let chunk_data: Vec<u8> = data_length
+            .to_be_bytes()
+            .iter()
+            .chain(chunk_type.iter())
+            .chain(message_bytes.iter())
+            .chain(crc.to_be_bytes().iter())
+            .copied()
+            .collect();
+
+        Chunk::try_from(chunk_data.as_ref()).unwrap()
+    }
+
+	#[test]
+    fn test_new_chunk() {
+        let chunk_type = PngChunkType::from_str("IHDR").unwrap();
+        let data = "A string for some sample bytes here"
+            .as_bytes()
+            .to_vec();
+        let chunk = Chunk::new(chunk_type, data);
+        assert_eq!(chunk.length(), 35);
+        assert_eq!(chunk.crc(), 1984488028);
+    }
+
+    #[test]
+    fn test_chunk_length() {
+        let chunk = testing_chunk();
+        assert_eq!(chunk.length(), 35);
+    }
+
+    #[test]
+    fn test_chunk_type() {
+        let chunk = testing_chunk();
+        assert_eq!(chunk.chunk_type().to_string(), String::from("IHDR"));
+    }
+
+	#[test]
+    fn test_chunk_crc() {
+        let chunk = testing_chunk();
+        assert_eq!(chunk.crc(), 1984488028);
+    }
+
+	#[test]
+    fn test_valid_chunk_from_bytes() {
+        let data_length: u32 = 35;
+        let chunk_type = "IHDR".as_bytes();
+        let message_bytes = "A string for some sample bytes here".as_bytes();
+        let crc: u32 = 1984488028;
+
+        let chunk_data: Vec<u8> = data_length
+            .to_be_bytes()
+            .iter()
+            .chain(chunk_type.iter())
+            .chain(message_bytes.iter())
+            .chain(crc.to_be_bytes().iter())
+            .copied()
+            .collect();
+
+        let chunk = Chunk::try_from(chunk_data.as_ref()).unwrap();
+
+
+        assert_eq!(chunk.length(), 35);
+        assert_eq!(chunk.chunk_type().to_string(), String::from("IHDR"));
+        assert_eq!(chunk.crc(), 1984488028);
+    }
+
+	#[test]
+    fn test_invalid_chunk_from_bytes() {
+        let data_length: u32 = 35;
+        let chunk_type = "IHDR".as_bytes();
+        let message_bytes = "A string for some sample bytes here".as_bytes();
+        let crc: u32 = 2882656334;
+
+        let chunk_data: Vec<u8> = data_length
+            .to_be_bytes()
+            .iter()
+            .chain(chunk_type.iter())
+            .chain(message_bytes.iter())
+            .chain(crc.to_be_bytes().iter())
+            .copied()
+            .collect();
+
+        let chunk = Chunk::try_from(chunk_data.as_ref());
+
+        assert!(chunk.is_err());
+    }
+}
