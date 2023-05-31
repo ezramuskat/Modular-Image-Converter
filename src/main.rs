@@ -5,6 +5,7 @@ use png::Png;
 
 use crate::cli::Cli;
 
+mod bmp;
 mod cli;
 mod png;
 fn main() -> Result<()> {
