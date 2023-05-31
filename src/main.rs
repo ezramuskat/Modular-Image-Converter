@@ -7,6 +7,7 @@ use crate::cli::Cli;
 
 mod bmp;
 mod cli;
+mod compression;
 mod png;
 fn main() -> Result<()> {
     let cli = Cli::parse();
