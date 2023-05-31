@@ -19,6 +19,11 @@ impl Png {
         Png { chunks }
     }
 
+	 /// Lists the `Chunk`s stored in this `Png`
+	 pub fn chunks(&self) -> &[Chunk] {
+        &self.chunks.as_slice()
+    }
+
     pub fn as_bytes(&self) -> Vec<u8> {
         let mut byte_vec: Vec<u8> = Vec::new();
         byte_vec.extend_from_slice(&Png::STANDARD_HEADER);
@@ -73,5 +78,107 @@ impl ConvertibleImage for Png {
 
     fn to_png(&self) -> Png {
         self.clone()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::str::FromStr;
+
+    use super::{*, chunk::PngChunkType};
+
+	fn chunk_from_strings(chunk_type: &str, data: &str) -> Result<Chunk> {
+        let chunk_type = PngChunkType::from_str(chunk_type)?;
+        let data: Vec<u8> = data.bytes().collect();
+
+        Ok(Chunk::new(chunk_type, data))
+    }
+
+	fn testing_chunks() -> Vec<Chunk> {
+        let mut chunks = Vec::new();
+
+        chunks.push(chunk_from_strings("IHDR", "I am the first chunk").unwrap());
+        chunks.push(chunk_from_strings("IDAT", "I am another chunk").unwrap());
+        chunks.push(chunk_from_strings("IEND", "I am the last chunk").unwrap());
+
+        chunks
+    }
+
+	fn testing_png() -> Png {
+        let chunks = testing_chunks();
+        Png::from_chunks(chunks)
+    }
+
+	#[test]
+    fn test_from_chunks() {
+        let chunks = testing_chunks();
+        let png = Png::from_chunks(chunks);
+
+        assert_eq!(png.chunks().len(), 3);
+    }
+
+	#[test]
+    fn test_valid_from_bytes() {
+        let chunk_bytes: Vec<u8> = testing_chunks()
+            .into_iter()
+            .flat_map(|chunk| chunk.as_bytes())
+            .collect();
+
+        let bytes: Vec<u8> = Png::STANDARD_HEADER
+            .iter()
+            .chain(chunk_bytes.iter())
+            .copied()
+            .collect();
+
+        let png = Png::try_from(bytes.as_ref());
+
+        assert!(png.is_ok());
+    }
+	
+	#[test]
+    fn test_invalid_header() {
+        let chunk_bytes: Vec<u8> = testing_chunks()
+            .into_iter()
+            .flat_map(|chunk| chunk.as_bytes())
+            .collect();
+
+        let bytes: Vec<u8> = [13, 80, 78, 71, 13, 10, 26, 10]
+            .iter()
+            .chain(chunk_bytes.iter())
+            .copied()
+            .collect();
+
+        let png = Png::try_from(bytes.as_ref());
+
+        assert!(png.is_err());
+    }
+
+	#[test]
+    fn test_list_chunks() {
+        let png = testing_png();
+        let chunks = png.chunks();
+        assert_eq!(chunks.len(), 3);
+    }
+
+	#[test]
+    fn test_invalid_chunk() {
+        let mut chunk_bytes: Vec<u8> = testing_chunks()
+            .into_iter()
+            .flat_map(|chunk| chunk.as_bytes())
+            .collect();
+
+        #[rustfmt::skip]
+        let mut bad_chunk = vec![
+            0, 0, 0, 5,         // length
+            32, 117, 83, 116,   // Chunk Type (bad)
+            65, 64, 65, 66, 67, // Data
+            1, 2, 3, 4, 5       // CRC (bad)
+        ];
+
+        chunk_bytes.append(&mut bad_chunk);
+
+        let png = Png::try_from(chunk_bytes.as_ref());
+
+        assert!(png.is_err());
     }
 }

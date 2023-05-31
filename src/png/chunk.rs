@@ -9,6 +9,8 @@ use strum::{Display, EnumString};
 #[derive(Display, EnumString, Clone, Debug)]
 pub enum PngChunkType {
     IHDR,
+	IDAT,
+	IEND,
     InvalidType, //not achievable through standard, used for error checking
 }
 
