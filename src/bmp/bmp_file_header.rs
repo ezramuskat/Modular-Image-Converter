@@ -1,15 +1,15 @@
 use crate::Error;
 
 #[derive(Clone, Copy, Debug)]
-pub struct BmpHeader {
+pub struct BmpFileHeader {
     length: u32,
     reserved_vals: [u8; 4],
     img_offset: u32,
 }
 
-impl BmpHeader {
-    pub fn new(length: u32, reserved_vals: [u8; 4], img_offset: u32) -> BmpHeader {
-        BmpHeader {
+impl BmpFileHeader {
+    pub fn new(length: u32, reserved_vals: [u8; 4], img_offset: u32) -> BmpFileHeader {
+        BmpFileHeader {
             length,
             reserved_vals,
             img_offset,
@@ -39,7 +39,7 @@ impl BmpHeader {
     }
 }
 
-impl TryFrom<&[u8]> for BmpHeader {
+impl TryFrom<&[u8]> for BmpFileHeader {
     type Error = Error;
 
     fn try_from(value: &[u8]) -> Result<Self, Self::Error> {
@@ -50,7 +50,7 @@ impl TryFrom<&[u8]> for BmpHeader {
         reserved_vals.copy_from_slice(&value[6..10]);
         buf.copy_from_slice(&value[10..14]);
         let img_offset = u32::from_le_bytes(buf);
-        Ok(BmpHeader {
+        Ok(BmpFileHeader {
             length,
             reserved_vals,
             img_offset,
@@ -60,16 +60,16 @@ impl TryFrom<&[u8]> for BmpHeader {
 
 #[cfg(test)]
 mod tests {
-    use super::BmpHeader;
+    use super::BmpFileHeader;
 
     #[test]
     fn test_new_header() {
         let length = 25;
         let reserved_vals = [0; 4];
         let img_offset = 30;
-        let header = BmpHeader::new(length, reserved_vals, img_offset);
+        let header = BmpFileHeader::new(length, reserved_vals, img_offset);
         assert_eq!(header.length(), 25);
-		assert_eq!(reserved_vals, [0;4]);
+        assert_eq!(reserved_vals, [0; 4]);
         assert_eq!(header.img_offset(), 30);
     }
 
@@ -88,9 +88,9 @@ mod tests {
             .copied()
             .collect();
 
-        let header = BmpHeader::try_from(header_data.as_ref()).unwrap();
+        let header = BmpFileHeader::try_from(header_data.as_ref()).unwrap();
         assert_eq!(header.length(), 25);
-		assert_eq!(reserved_vals, [0;4]);
+        assert_eq!(reserved_vals, [0; 4]);
         assert_eq!(header.img_offset(), 30);
     }
 }
