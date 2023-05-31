@@ -5,7 +5,7 @@ use clap::Parser;
 
 #[derive(Parser)]
 pub struct Cli {
-	source: PathBuf,
-	target: PathBuf,
-	settings: Option<Vec<String>>
+	pub source: PathBuf,
+	pub target: PathBuf,
+	pub settings: Option<Vec<String>>
 }
