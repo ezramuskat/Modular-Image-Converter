@@ -4,15 +4,8 @@ use std::{
 };
 
 use crc::CRC_32_ISO_HDLC;
-use strum::{Display, EnumString};
 
-#[derive(Display, EnumString, Clone, Debug)]
-pub enum PngChunkType {
-    IHDR,
-	IDAT,
-	IEND,
-    InvalidType, //not achievable through standard, used for error checking
-}
+use super::chunk_type::PngChunkType;
 
 #[derive(Clone, Debug)]
 pub struct Chunk {
@@ -82,13 +75,9 @@ impl TryFrom<&[u8]> for Chunk {
         buf.copy_from_slice(&value[0..4]);
         let length = u32::from_be_bytes(buf);
         buf.copy_from_slice(&value[4..8]);
-
-        let chunk_type = match PngChunkType::from_str(
-            from_utf8(&buf).unwrap_or_else(|_| return "InvalidType"),
-        ) {
-            Ok(PngChunkType::InvalidType) => return Err(format!("Invalid chunk type")),
+        let chunk_type = match PngChunkType::try_from(buf) {
             Ok(val) => val,
-            Err(e) => return Err(e.to_string()),
+            Err(e) => return Err(e),
         };
         let crc_offset: usize = 8 + length as usize;
         buf.copy_from_slice(&value[crc_offset..crc_offset + 4]);

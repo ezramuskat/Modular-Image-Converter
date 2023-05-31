@@ -1,4 +1,4 @@
-use std::{io, path::Path};
+use std::path::Path;
 
 use clap::Parser;
 use png::Png;

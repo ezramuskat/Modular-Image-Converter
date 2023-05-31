@@ -1,4 +1,5 @@
 pub mod chunk;
+pub mod chunk_type;
 
 use std::{fs, path::Path};
 
@@ -81,7 +82,7 @@ impl ConvertibleImage for Png {
 mod tests {
     use std::str::FromStr;
 
-    use super::{*, chunk::PngChunkType};
+    use super::{*, chunk_type::PngChunkType};
 
 	fn chunk_from_strings(chunk_type: &str, data: &str) -> Result<Chunk> {
         let chunk_type = PngChunkType::from_str(chunk_type)?;
