@@ -9,13 +9,14 @@ mod cli;
 fn main() {
     let cli = Cli::parse();
     //get first file
-    let input: Box<dyn ConvertibleImage> = match &cli.source.extension().expect("Invalid source; files must have an extension") {
-        default => {
-            if let Some(default_str) = default.to_str() {
-                println!("Files with extension {} are not supported at this time", default_str);
-            } else {
-                println!("Unable to read extension for source file")
-            }
+    let input: Box<dyn ConvertibleImage> = match &cli.source.extension().expect("Invalid source; files must have an extension").to_str() {
+
+        Some(default) => {
+            println!("Files with extension {} are not supported at this time", default);
+            return;
+        },
+        None => {
+            println!("Unable to read file extension");
             return;
         }
     };
