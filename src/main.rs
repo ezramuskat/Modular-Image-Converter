@@ -1,25 +1,27 @@
 use std::{io, path::Path};
 
 use clap::Parser;
+use png::Png;
 
 use crate::cli::Cli;
 
 mod png;
 mod cli;
-fn main() {
+fn main() -> Result<()>{
     let cli = Cli::parse();
     //get first file
     let input: Box<dyn ConvertibleImage> = match &cli.source.extension().expect("Invalid source; files must have an extension").to_str() {
-
+        Some("png") => Png::from_file(&cli.source)?,
         Some(default) => {
             println!("Files with extension {} are not supported at this time", default);
-            return;
+            return Ok(());
         },
         None => {
             println!("Unable to read file extension");
-            return;
+            return Ok(());
         }
     };
+    return Ok(());
 }
 
 //error handling types
