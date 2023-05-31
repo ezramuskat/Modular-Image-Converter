@@ -1,6 +1,7 @@
 use std::{io, path::Path};
 
 mod png;
+mod cli;
 fn main() {
     println!("Hello, world!");
 }
