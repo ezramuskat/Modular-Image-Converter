@@ -7,5 +7,5 @@ use clap::Parser;
 pub struct Cli {
 	pub source: PathBuf,
 	pub target: PathBuf,
-	pub settings: Option<Vec<String>>
+	pub flags: Option<Vec<String>>
 }

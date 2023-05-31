@@ -73,7 +73,7 @@ impl ConvertibleImage for Png {
         png
     }
 
-    fn to_png(&self, _flags: Vec<String>) -> Png {
+    fn to_png(&self, _flags: Option<Vec<String>>) -> Png {
         self.clone()
     }
 }
