@@ -7,6 +7,7 @@ use crc::CRC_32_ISO_HDLC;
 
 use super::chunk_type::PngChunkType;
 
+/// based on the design used in the PNGMe tutorial, which can be found at <https://picklenerd.github.io/pngme_book/>
 #[derive(Clone, Debug)]
 pub struct Chunk {
     length: u32,
@@ -108,8 +109,8 @@ impl fmt::Display for Chunk {
 
 #[cfg(test)]
 mod tests {
-	use super::*;
-	fn testing_chunk() -> Chunk {
+    use super::*;
+    fn testing_chunk() -> Chunk {
         let data_length: u32 = 35;
         let chunk_type = "IHDR".as_bytes();
         let message_bytes = "A string for some sample bytes here".as_bytes();
@@ -127,12 +128,10 @@ mod tests {
         Chunk::try_from(chunk_data.as_ref()).unwrap()
     }
 
-	#[test]
+    #[test]
     fn test_new_chunk() {
         let chunk_type = PngChunkType::from_str("IHDR").unwrap();
-        let data = "A string for some sample bytes here"
-            .as_bytes()
-            .to_vec();
+        let data = "A string for some sample bytes here".as_bytes().to_vec();
         let chunk = Chunk::new(chunk_type, data);
         assert_eq!(chunk.length(), 35);
         assert_eq!(chunk.crc(), 1984488028);
@@ -150,13 +149,13 @@ mod tests {
         assert_eq!(chunk.chunk_type().to_string(), String::from("IHDR"));
     }
 
-	#[test]
+    #[test]
     fn test_chunk_crc() {
         let chunk = testing_chunk();
         assert_eq!(chunk.crc(), 1984488028);
     }
 
-	#[test]
+    #[test]
     fn test_valid_chunk_from_bytes() {
         let data_length: u32 = 35;
         let chunk_type = "IHDR".as_bytes();
@@ -174,13 +173,12 @@ mod tests {
 
         let chunk = Chunk::try_from(chunk_data.as_ref()).unwrap();
 
-
         assert_eq!(chunk.length(), 35);
         assert_eq!(chunk.chunk_type().to_string(), String::from("IHDR"));
         assert_eq!(chunk.crc(), 1984488028);
     }
 
-	#[test]
+    #[test]
     fn test_invalid_chunk_from_bytes() {
         let data_length: u32 = 35;
         let chunk_type = "IHDR".as_bytes();

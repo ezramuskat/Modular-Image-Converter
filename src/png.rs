@@ -7,7 +7,7 @@ use crate::{ConvertibleImage, Error, Result};
 
 use self::chunk::Chunk;
 
-/// based on the design used in the PNGMe tutorial by <author>, which can be found at <link>
+/// based on the design used in the PNGMe tutorial, which can be found at <https://picklenerd.github.io/pngme_book/>
 #[derive(Clone, Debug)]
 pub struct Png {
     chunks: Vec<Chunk>,
@@ -20,8 +20,8 @@ impl Png {
         Png { chunks }
     }
 
-	 /// Lists the `Chunk`s stored in this `Png`
-	 pub fn chunks(&self) -> &[Chunk] {
+    /// Lists the `Chunk`s stored in this `Png`
+    pub fn chunks(&self) -> &[Chunk] {
         &self.chunks.as_slice()
     }
 }
@@ -82,16 +82,16 @@ impl ConvertibleImage for Png {
 mod tests {
     use std::str::FromStr;
 
-    use super::{*, chunk_type::PngChunkType};
+    use super::{chunk_type::PngChunkType, *};
 
-	fn chunk_from_strings(chunk_type: &str, data: &str) -> Result<Chunk> {
+    fn chunk_from_strings(chunk_type: &str, data: &str) -> Result<Chunk> {
         let chunk_type = PngChunkType::from_str(chunk_type)?;
         let data: Vec<u8> = data.bytes().collect();
 
         Ok(Chunk::new(chunk_type, data))
     }
 
-	fn testing_chunks() -> Vec<Chunk> {
+    fn testing_chunks() -> Vec<Chunk> {
         let mut chunks = Vec::new();
 
         chunks.push(chunk_from_strings("IHDR", "I am the first chunk").unwrap());
@@ -101,12 +101,12 @@ mod tests {
         chunks
     }
 
-	fn testing_png() -> Png {
+    fn testing_png() -> Png {
         let chunks = testing_chunks();
         Png::from_chunks(chunks)
     }
 
-	#[test]
+    #[test]
     fn test_from_chunks() {
         let chunks = testing_chunks();
         let png = Png::from_chunks(chunks);
@@ -114,7 +114,7 @@ mod tests {
         assert_eq!(png.chunks().len(), 3);
     }
 
-	#[test]
+    #[test]
     fn test_valid_from_bytes() {
         let chunk_bytes: Vec<u8> = testing_chunks()
             .into_iter()
@@ -131,8 +131,8 @@ mod tests {
 
         assert!(png.is_ok());
     }
-	
-	#[test]
+
+    #[test]
     fn test_invalid_header() {
         let chunk_bytes: Vec<u8> = testing_chunks()
             .into_iter()
@@ -150,14 +150,14 @@ mod tests {
         assert!(png.is_err());
     }
 
-	#[test]
+    #[test]
     fn test_list_chunks() {
         let png = testing_png();
         let chunks = png.chunks();
         assert_eq!(chunks.len(), 3);
     }
 
-	#[test]
+    #[test]
     fn test_invalid_chunk() {
         let mut chunk_bytes: Vec<u8> = testing_chunks()
             .into_iter()

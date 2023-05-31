@@ -3,6 +3,7 @@ use std::{
     str::{from_utf8, FromStr},
 };
 
+/// based on the design used in the PNGMe tutorial, which can be found at <https://picklenerd.github.io/pngme_book/>
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub struct PngChunkType {
     code: [u8; 4],
