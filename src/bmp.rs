@@ -1,1 +1,1 @@
-pub mod bmp_header;
+pub mod bmp_file_header;
