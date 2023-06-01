@@ -24,6 +24,20 @@ impl Png {
     pub fn chunks(&self) -> &[Chunk] {
         &self.chunks.as_slice()
     }
+
+    pub fn header_chunk(&self) -> Option<&Chunk> {
+        self.chunk_by_type("IHDR")
+    }
+
+    /// Searches for a `Chunk` with the specified `chunk_type` and returns the first
+    /// matching `Chunk` from this `Png`.
+    fn chunk_by_type(&self, chunk_type: &str) -> Option<&Chunk> {
+        self.chunks
+            .iter()
+            .find(|&chunk| chunk.chunk_type().to_string().eq(chunk_type))
+    }
+
+
 }
 
 impl TryFrom<&[u8]> for Png {
