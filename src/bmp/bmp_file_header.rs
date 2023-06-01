@@ -44,9 +44,9 @@ impl TryFrom<&[u8]> for BmpFileHeader {
 
     fn try_from(value: &[u8]) -> Result<Self, Self::Error> {
         match String::from_utf8(value[0..2].to_vec())?.as_str() {
-			"BM" => (),
-			_ =>  return Err(format!("Invalid bitmap signature").into())
-		};
+            "BM" => (),
+            _ => return Err(format!("Invalid bitmap signature").into()),
+        };
         let mut buf: [u8; 4] = [0; 4];
         buf.copy_from_slice(&value[2..6]);
         let length = u32::from_le_bytes(buf);

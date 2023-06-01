@@ -36,8 +36,6 @@ impl Png {
             .iter()
             .find(|&chunk| chunk.chunk_type().to_string().eq(chunk_type))
     }
-
-
 }
 
 impl TryFrom<&[u8]> for Png {
