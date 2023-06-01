@@ -1,4 +1,4 @@
-use crate::compression::CompressionType;
+use crate::{compression::CompressionType, Error};
 
 /*
  * Most BMP files just use the BMPINFOHEADER type, so for now we'll only implement
@@ -94,5 +94,56 @@ impl BmpInfoHeader for BitmapInfoHeader {
 		.chain(self.num_important_colors.to_le_bytes().iter())
 		.copied()
 		.collect()
+	}
+}
+
+impl TryFrom<&[u8]> for BitmapInfoHeader {
+	type Error = Error;
+
+	fn try_from(value: &[u8]) -> Result<Self, Self::Error> {
+		let mut buf_4: [u8;4] = [0;4];
+		buf_4.copy_from_slice(&value[0..4]);
+		if u32::from_le_bytes(buf_4) != 40 {
+			return Err(format!("invalid length for header type").into())
+		};
+		let length = 40;
+
+		buf_4.copy_from_slice(&value[4..8]);
+		let px_width = i32::from_le_bytes(buf_4);
+
+		buf_4.copy_from_slice(&value[8..12]);
+		let px_height = i32::from_le_bytes(buf_4);
+
+		let mut buf_2: [u8;2] = [0;2];
+		buf_2.copy_from_slice(&value[14..16]);
+		let bits_per_pixel = u16::from_le_bytes(buf_2);
+
+		buf_4.copy_from_slice(&value[16..20]);
+		let compression_type = match u32::from_le_bytes(buf_4) {
+			0 => None,
+			1 => Some(CompressionType::BI_RLE8),
+			2 => Some(CompressionType::BI_RLE4),
+			_ => return Err(format!("unknown compression type").into())
+		};
+
+		buf_4.copy_from_slice(&value[20..24]);
+		let img_size = u32::from_le_bytes(buf_4);
+
+		buf_4.copy_from_slice(&value[24..28]);
+		let res_horiz = i32::from_le_bytes(buf_4);
+
+		buf_4.copy_from_slice(&value[28..32]);
+		let res_vert = i32::from_le_bytes(buf_4);
+
+		buf_4.copy_from_slice(&value[32..36]);
+		let num_colors = u32::from_le_bytes(buf_4);
+
+		buf_4.copy_from_slice(&value[36..40]);
+		let num_important_colors = u32::from_le_bytes(buf_4);
+
+		Ok(BitmapInfoHeader { length, px_width, px_height, bits_per_pixel, compression_type, img_size, res_horiz, res_vert, num_colors, num_important_colors })
+
+
+
 	}
 }
